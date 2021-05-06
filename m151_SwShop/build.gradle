@@ -1,0 +1,76 @@
+plugins {
+    id 'java'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.springframework.boot' version '2.4.3'
+    id 'org.liquibase.gradle' version '2.0.3'
+    id 'org.flywaydb.flyway' version '7.6.0'
+}
+
+group 'ch.bbzw.m151'
+version '0.1.0-SNAPSHOT'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.postgresql:postgresql'
+    runtimeOnly 'com.h2database:h2'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    implementation 'org.flywaydb:flyway-core:7.6.0'
+    implementation 'org.liquibase:liquibase-core:4.3.1'
+
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.11.981'
+
+    liquibaseRuntime 'org.liquibase:liquibase-core:4.3.1'
+    liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:3.0.0'
+    liquibaseRuntime 'org.postgresql:postgresql'
+    liquibaseRuntime 'org.liquibase.ext:liquibase-hibernate5:4.3.1'
+    liquibaseRuntime sourceSets.main.output
+}
+
+def db_url = 'jdbc:postgresql://localhost:5432/m151'
+def db_user = 'admin'
+def db_password = 'secret'
+
+flyway {
+    url = db_url
+    user = db_user
+    password = db_password
+}
+
+liquibase {
+    activities {
+        main {
+            changeLogFile 'src/main/resources/db/changelog/master.xml'
+            url db_url
+            username db_user
+            password db_password
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -1,0 +1,44 @@
+build-swshop:
+  image: gradle:jdk11
+  stage: build
+  variables:
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+  script: gradle --build-cache assemble
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: push
+    paths:
+      - build
+      - .gradle
+
+test-swshop:
+  image: gradle:jdk11
+  stage: test
+  script: gradle check
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: pull
+    paths:
+      - build
+      - .gradle
+
+build-image:
+  image: docker:19.03.15
+  stage: deploy
+  services:
+    - docker:19.03.15-dind
+  dependencies:
+    - build-swshop
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: pull
+    paths:
+      - build
+  variables:
+    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG

@@ -1,0 +1,6 @@
+docker run -it --rm --name swshop \
+--network docker_swshop \
+-e DATASOURCE=postgres \
+-e REDIS=redis \
+-e ENABLE_FLYWAY=true \
+registry.gitlab.com/bbzw_sar/m151_swshop:master

@@ -1,0 +1,17 @@
+./gradlew bootJar
+
+docker build . -t swshop:0.1.0
+
+docker run -it --rm --name swshop \
+--network docker_swshop \
+-e DATASOURCE=postgres \
+-e REDIS=redis \
+-e ENABLE_FLYWAY=true \
+swshop:0.1.0
+---
+docker run -it --rm --name swshop \
+--network docker_swshop \
+-e DATASOURCE=postgres \
+-e REDIS=redis \
+-e ENABLE_LIQUIBASE=true \
+swshop:0.1.0
