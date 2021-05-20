@@ -55,7 +55,7 @@ services:
       - minio-data:/data
 
 networks:
-  fruitshop:
+  swshop:
     driver: bridge
 
 volumes:
